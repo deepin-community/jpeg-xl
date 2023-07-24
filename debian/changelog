@@ -1,5 +1,298 @@
-template-repository (1.0-1) unstable; urgency=medium
+jpeg-xl (0.7.0-10) unstable; urgency=medium
 
-  * Initial release
+  * d/patches: Improve cjxl/djxl manpages. Closes: #1023641
 
- -- Tsic404 <liuheng@deepin.org>  Sat, 28 Jan 2023 13:46:49 +0800
+ -- Mathieu Malaterre <malat@debian.org>  Sun, 29 Jan 2023 13:01:36 +0100
+
+jpeg-xl (0.7.0-9) unstable; urgency=medium
+
+  * d/tests: Adapt test to latest change
+  * d/control: Fix lintian build-depends-on-1-revision
+
+ -- Mathieu Malaterre <malat@debian.org>  Thu, 05 Jan 2023 09:00:37 +0100
+
+jpeg-xl (0.7.0-8) unstable; urgency=medium
+
+  * d/patches: Another big-endian fix. Closes: #1023746
+  * d/control: Make sure to use latest testdata
+
+ -- Mathieu Malaterre <malat@debian.org>  Wed, 04 Jan 2023 15:25:10 +0100
+
+jpeg-xl (0.7.0-7) unstable; urgency=medium
+
+  * d/control: Bump Std-Vers to 4.6.2 no changes needed
+  * d/patches: Fix test suite on big-endian. Closes: #1023746
+
+ -- Mathieu Malaterre <malat@debian.org>  Wed, 04 Jan 2023 12:29:14 +0100
+
+jpeg-xl (0.7.0-6) unstable; urgency=medium
+
+  [ Jon Sneyers ]
+  * d/manpages: Add more details about jxl_from_tree
+
+  [ Mathieu Malaterre ]
+  * d/control: Mark libjxl-dev Multi-Arch: same
+  * d/control: Require hwy 1.0.2 and up
+  * d/control: Requires latest of libjxl-testdata
+  * d/rules: Fix a pile of build vs host confusions
+  * d/copyright: Fix file location for ssimulacra.cc
+
+ -- Mathieu Malaterre <malat@debian.org>  Mon, 21 Nov 2022 14:23:13 +0100
+
+jpeg-xl (0.7.0-5) unstable; urgency=medium
+
+  * d/control: Prefer libjpeg-turbo since default on Debian
+  * d/t/run-unit-test: Fix issue with lossy decompression
+
+ -- Mathieu Malaterre <malat@debian.org>  Wed, 05 Oct 2022 11:07:05 +0200
+
+jpeg-xl (0.7.0-4) unstable; urgency=medium
+
+  * d/t/control: Remove big-endian arches for now
+  * d/rules: Be more specific about gcc wrong-code issue
+  * d/t/run-unit-test: Fix issue with lossy conversion
+
+ -- Mathieu Malaterre <malat@debian.org>  Tue, 04 Oct 2022 10:20:14 +0200
+
+jpeg-xl (0.7.0-3) unstable; urgency=medium
+
+  [ Pino Toscano ]
+  * Restrict the JNI/Java bindings on archs with Java
+
+  [ Mathieu Malaterre ]
+  * d/control: Properly set min version for libavif
+  * d/rules: Do not install doxygen checksum files
+  * d/rules: Prefer -O1 on armhf for now
+  * d/tests: Add unit tests
+
+ -- Mathieu Malaterre <malat@debian.org>  Mon, 03 Oct 2022 14:00:03 +0200
+
+jpeg-xl (0.7.0-2) unstable; urgency=medium
+
+  * d/control: Add missing libavif dependency
+  * d/rules: Add -Wno-psabi to ppc64el and arm64
+  * d/rules: Increase timeout to 4h for mipsel
+  * d/patches: Fix RoundtripLargeFast unit test
+  * d/rules: Fix manpages generation
+
+ -- Mathieu Malaterre <malat@debian.org>  Sun, 02 Oct 2022 09:29:54 +0200
+
+jpeg-xl (0.7.0-1) unstable; urgency=medium
+
+  * d/watch: Point to release tags
+  * New upstream version 0.7.0. Closes: #1012884
+  * d/patches: Refresh patches for latest upstream
+  * d/symbols: Add missing symbols
+
+ -- Mathieu Malaterre <malat@debian.org>  Mon, 26 Sep 2022 10:19:50 +0200
+
+jpeg-xl (0.7.0~git20220805.980c90f-3) experimental; urgency=medium
+
+  * d/patches: Fix issue with LibraryCLinkageTest
+  * d/rules: Change timeout to 3h for unit test
+  * d/control: Make sure to use latest hwy
+
+ -- Mathieu Malaterre <malat@debian.org>  Thu, 25 Aug 2022 14:59:40 +0200
+
+jpeg-xl (0.7.0~git20220805.980c90f-2) experimental; urgency=medium
+
+  * d/patches: Remove failing test for now
+  * d/patches: Fix LibraryCLinkageTest unit test
+  * d/control: Make sure to use latest of testdata
+
+ -- Mathieu Malaterre <malat@debian.org>  Mon, 22 Aug 2022 15:33:42 +0200
+
+jpeg-xl (0.7.0~git20220805.980c90f-1) experimental; urgency=medium
+
+  * New upstream version 0.7.0~git20220805.980c90f
+  * d/rules: Properly check return code from unit test
+  * d/control: Make sure to use latest testdata
+
+ -- Mathieu Malaterre <malat@debian.org>  Wed, 10 Aug 2022 11:46:24 +0200
+
+jpeg-xl (0.7.0~git20220802.7929382-1) experimental; urgency=medium
+
+  * d/control: Make sure to start using hwy 1.0
+  * New upstream version 0.7.0~git20220802.7929382
+  * d/rules: Remove reference to cjxl_ng since removed upstream
+  * d/rules: Remove unused rule for jxlinfo.1
+  * d/patches: Start using lcms2 v2.13 and up
+
+ -- Mathieu Malaterre <malat@debian.org>  Tue, 02 Aug 2022 13:30:49 +0200
+
+jpeg-xl (0.7.0~git20220704.de6a16a-1) experimental; urgency=medium
+
+  * d/p/manpages.patch: Add missing command line options
+  * New upstream version 0.7.0~git20220408.e6264cd+ds
+  * d/patches: Refresh patches
+  * d/control: Remove dh-exec since not used anymore
+  * d/rules: Set SKCMS bundle option to OFF for consistency
+  * d/control: Add dependency to libjxl-testdata
+  * d/patches: Add support for testdata in /usr
+  * d/patches: Fix installation of cjxl_ng
+  * d/control: Properly Implement <!nocheck>
+  * d/patches: Remove a failing test
+  * d/patches: Add a fix when RPATH is not set
+  * d/rules: Make sure to remove by-products from test-suite
+  * New upstream version 0.7.0~git20220420.6cce649+ds
+  * d/patches: Remove patches applied upstream
+  * d/rules: Adapt to latest change for jxlinfo
+  * d/control: Bump Std-Vers to 4.6.1 no changes needed
+  * d/control: make libjxl-dev depend on required libraries. Closes: #1010856
+  * d/control: Make sure to use latest of testdata
+  * d/copyright: Adapt to latest upstream changes
+  * New upstream version 0.7.0~git20220704.de6a16a
+  * d/patches: Refresh patches according to latest upstream
+  * d/rules: Only apply no-psabi on armel/armhf
+  * d/rules: Remove add_noise to match upstream
+
+ -- Mathieu Malaterre <malat@debian.org>  Mon, 04 Jul 2022 11:54:24 +0200
+
+jpeg-xl (0.7.0~git20220325.7594374+ds-3) experimental; urgency=medium
+
+  * d/patches: Improve man pages documentation
+  * d/u/metadata: Fix lintian upstream-metadata-file-is-missing
+  * d/rules: Add missing jxlinfo generation rule
+  * d/rules: Add missing rule for *_ng man pages
+  * d/rules: Add flags from upstream during compilation
+  * d/rules: Add benchmark command line to devtools
+  * d/rules: Properly set doxygen to OFF when building binary only
+  * d/patches: Properly install jar/jni files
+  * d/control: Add libjpegxl-java package
+  * d/rules: Fixed typo in DEB_VERSION_UPSTREAM
+
+ -- Mathieu Malaterre <malat@debian.org>  Mon, 04 Apr 2022 11:08:50 +0200
+
+jpeg-xl (0.7.0~git20220325.7594374+ds-2) experimental; urgency=medium
+
+  * d/control: Add graphviz package for dot command
+  * d/control: Add missing help2man dependency
+  * d/rules: Only run help2man in arch builds
+  * d/rules: Add missing rules to cleanup *.1 generated files
+
+ -- Mathieu Malaterre <malat@debian.org>  Tue, 29 Mar 2022 09:06:43 +0200
+
+jpeg-xl (0.7.0~git20220325.7594374+ds-1) experimental; urgency=medium
+
+  * New upstream version 0.7.0~git20220325.7594374+ds
+  * d/control: Document relation cjpeg_hdr to avifenc
+  * d/manpages: Add missing devtools manpages
+  * d/rules: Remove generated *.a static libs
+  * d/manpages: Add tools manpages
+  * d/rules: Add missing PHONY target
+  * d/rules: Install jxlinfo in devtools
+  * d/control: Add Suggests to netpbm
+  * d/control: Add Recommends to libjpeg-progs
+  * d/patches: Refresh patches
+  * d/patches: Make sure to use lcms 2.12 for now
+  * d/rules: Remove reference to dead code (epf_main)
+
+ -- Mathieu Malaterre <malat@debian.org>  Mon, 28 Mar 2022 13:59:09 +0200
+
+jpeg-xl (0.7.0~git20220228.89875cb+ds-1) experimental; urgency=medium
+
+  * d/patches: Fix minor typo
+  * New upstream version 0.7.0~git20220228.89875cb+ds
+  * d/patches: Remove GUN/Hurd patch applied upstream
+  * d/control: Add devtools package
+
+ -- Mathieu Malaterre <malat@debian.org>  Thu, 03 Mar 2022 16:34:28 +0100
+
+jpeg-xl (0.7.0~git20220120.0647da4+ds-5) experimental; urgency=medium
+
+  * d/rules: Remove a warning note from all buildds
+  * d/rules: Do not run test in indep builds
+  * d/patches: Add thread fix for riscv64
+  * d/patches: Rework riscv64 patch
+
+ -- Mathieu Malaterre <malat@debian.org>  Mon, 07 Feb 2022 14:02:30 +0100
+
+jpeg-xl (0.7.0~git20220120.0647da4+ds-4) experimental; urgency=medium
+
+  * d/examples: Prefer doc package now
+  * d/patches: Fix incomplete HURD patch
+  * d/patches: Really fix riscv64 support
+
+ -- Mathieu Malaterre <malat@debian.org>  Mon, 31 Jan 2022 13:16:53 +0100
+
+jpeg-xl (0.7.0~git20220120.0647da4+ds-3) experimental; urgency=medium
+
+  * d/control: Remove xdg-utils/xmlto dependencies (not needed)
+  * d/control: We do not need asciidoc/dblatex dependency
+  * d/control: Add jpeg-xl-doc package
+  * d/control: Update requirement for cmake version
+  * d/control: Add missing dependency docbook-xml
+  * d/patches: Fix compilation on GNU/Hurd
+  * d/patches: Add support for riscv64/atomics
+
+ -- Mathieu Malaterre <malat@debian.org>  Fri, 28 Jan 2022 11:37:42 +0100
+
+jpeg-xl (0.7.0~git20220120.0647da4+ds-2) experimental; urgency=medium
+
+  * d/control: Make sure to specify minimum requirement for dependencies
+  * d/symbols: Add missing Build-Depends-Package line
+  * d/rules: Remove a warning on armel/armhf
+  * d/patches: Start adding support for latomic arches
+  * d/rules: Do not force tcmalloc implementation on all arches
+
+ -- Mathieu Malaterre <malat@debian.org>  Thu, 27 Jan 2022 13:47:42 +0100
+
+jpeg-xl (0.7.0~git20220120.0647da4+ds-1) experimental; urgency=medium
+
+  * d/watch Prepare orig tarball directly from git HEAD
+  * d/copyright Upstream has simplified convenient library copy logic
+  * New upstream version 0.7.0~git20220120.0647da4+ds
+  * d/control Start building jpeg-xl 0.7
+  * d/symbols Update symbols file
+  * d/patches Remove patches applied upstream
+  * d/compat Start using compat 11
+  * d/rules Document why plugins are not built currently
+  * d/rules Start building JPEG-XL with OpenEXR option
+
+ -- Mathieu Malaterre <malat@debian.org>  Thu, 20 Jan 2022 14:35:45 +0100
+
+jpeg-xl (0.6.1+ds-6) experimental; urgency=medium
+
+  * d/symbols: Fix lintian symbols-file-missing-build-depends-package-field
+  * d/rules: Start using the system installed hwy
+  * d/patches: Adapt to GCC-11 default c++ standard
+  * d/examples: Install examples folder
+  * d/install: Do not install *.a anymore
+
+ -- Mathieu Malaterre <malat@debian.org>  Thu, 06 Jan 2022 15:39:42 +0100
+
+jpeg-xl (0.6.1+ds-5) experimental; urgency=medium
+
+  * d/symbols: Hide all the std namespace symbols
+  * d/rules: Add missing -latomic for armel and such
+  * d/patches: Do not force -std=c++11 flag during compilation
+
+ -- Mathieu Malaterre <malat@debian.org>  Wed, 15 Dec 2021 16:19:00 +0100
+
+jpeg-xl (0.6.1+ds-4) experimental; urgency=medium
+
+  * d/patches: Properly handle a2x >= 10
+  * d/rules: Do not check the return value from test
+
+ -- Mathieu Malaterre <malat@debian.org>  Wed, 15 Dec 2021 12:07:35 +0100
+
+jpeg-xl (0.6.1+ds-3) experimental; urgency=medium
+
+  * d/control: Add missing B-D on LCMS
+  * d/control: Add missing Rules-Requires-Root: no
+
+ -- Mathieu Malaterre <malat@debian.org>  Wed, 15 Dec 2021 10:20:11 +0100
+
+jpeg-xl (0.6.1+ds-2) experimental; urgency=medium
+
+  * d/control: Add missing B-D on ninja
+  * d/TODO: Add documentation about C-ABI and libstdc++ exceptions
+  * d/README.Debian: Add documentation about git submodules
+
+ -- Mathieu Malaterre <malat@debian.org>  Wed, 15 Dec 2021 09:13:47 +0100
+
+jpeg-xl (0.6.1+ds-1) experimental; urgency=medium
+
+  * Initial release (Closes: #948862)
+
+ -- Mathieu Malaterre <malat@debian.org>  Tue, 14 Dec 2021 10:29:22 +0100

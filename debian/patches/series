@@ -1,0 +1,6 @@
+do_not_force_cxx11.patch
+continuefinalnonessentialboxtest.patch
+roundtriplargefast.patch
+de08116d14db785431f3efb651dcf2af15bbb682.patch
+1a36db0bf452a2232f0a15d7d8edb542e8196401.patch
+manpages.patch

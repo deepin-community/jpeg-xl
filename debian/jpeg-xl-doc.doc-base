@@ -1,0 +1,9 @@
+Document: jpeg-xl-doc
+Title: JPEG XL image format reference implementation
+Author: JPEG XL Project Authors
+Abstract: JPEG XL image format reference implementation
+Section: Programming/C++
+
+Format: HTML
+Index: /usr/share/doc/jpeg-xl-doc/html/index.html
+Files: /usr/share/doc/jpeg-xl-doc/html/*

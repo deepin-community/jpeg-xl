@@ -1,0 +1,102 @@
+From 1a36db0bf452a2232f0a15d7d8edb542e8196401 Mon Sep 17 00:00:00 2001
+From: Mathieu Malaterre <mathieu.malaterre@gmail.com>
+Date: Tue, 3 Jan 2023 08:43:31 +0000
+Subject: [PATCH] Fix big-endian test for float16
+
+The following commit allow the `CodecTest.TestRoundTrip`,
+`ModularTest.PredictorIntegerOverflow`,
+`ModularTest.UnsqueezeIntegerOverflow` test and
+`DecodeTest/DecodeTestParam.PixelTest/301x33*f16*` test family to pass
+on big-endian architectures.
+
+Fixes #1024
+---
+ lib/jxl/modular_test.cc |  4 ++--
+ lib/jxl/test_utils.h    | 14 +++++++++++---
+ 2 files changed, 13 insertions(+), 5 deletions(-)
+
+Index: libjxl/lib/jxl/modular_test.cc
+===================================================================
+--- libjxl.orig/lib/jxl/modular_test.cc
++++ libjxl/lib/jxl/modular_test.cc
+@@ -481,7 +481,7 @@ TEST(ModularTest, PredictorIntegerOverfl
+   PaddedBytes compressed = std::move(writer).TakeBytes();
+   extras::PackedPixelFile ppf;
+   extras::JXLDecompressParams params;
+-  params.accepted_formats.push_back({1, JXL_TYPE_FLOAT, JXL_LITTLE_ENDIAN, 0});
++  params.accepted_formats.push_back({1, JXL_TYPE_FLOAT, JXL_NATIVE_ENDIAN, 0});
+   EXPECT_TRUE(DecodeImageJXL(compressed.data(), compressed.size(), params,
+                              nullptr, &ppf));
+   ASSERT_EQ(1, ppf.frames.size());
+@@ -529,7 +529,7 @@ TEST(ModularTest, UnsqueezeIntegerOverfl
+   PaddedBytes compressed = std::move(writer).TakeBytes();
+   extras::PackedPixelFile ppf;
+   extras::JXLDecompressParams params;
+-  params.accepted_formats.push_back({1, JXL_TYPE_FLOAT, JXL_LITTLE_ENDIAN, 0});
++  params.accepted_formats.push_back({1, JXL_TYPE_FLOAT, JXL_NATIVE_ENDIAN, 0});
+   EXPECT_TRUE(DecodeImageJXL(compressed.data(), compressed.size(), params,
+                              nullptr, &ppf));
+   ASSERT_EQ(1, ppf.frames.size());
+Index: libjxl/lib/jxl/test_utils.h
+===================================================================
+--- libjxl.orig/lib/jxl/test_utils.h
++++ libjxl/lib/jxl/test_utils.h
+@@ -407,6 +407,11 @@ std::vector<double> ConvertToRGBA32(cons
+   size_t num_channels = format.num_channels;
+   bool gray = num_channels == 1 || num_channels == 2;
+   bool alpha = num_channels == 2 || num_channels == 4;
++  JxlEndianness endianness = format.endianness;
++  // Compute actual type:
++  if (endianness == JXL_NATIVE_ENDIAN) {
++    endianness = IsLittleEndian() ? JXL_LITTLE_ENDIAN : JXL_BIG_ENDIAN;
++  }
+ 
+   size_t stride =
+       xsize * jxl::DivCeil(GetDataBits(format.data_type) * num_channels,
+@@ -431,6 +436,7 @@ std::vector<double> ConvertToRGBA32(cons
+       }
+     }
+   } else if (format.data_type == JXL_TYPE_UINT16) {
++    JXL_ASSERT(endianness != JXL_NATIVE_ENDIAN);
+     // Multiplier to bring to 0-1.0 range
+     double mul = factor > 0.0 ? factor : 1.0 / 65535.0;
+     for (size_t y = 0; y < ysize; ++y) {
+@@ -438,7 +444,7 @@ std::vector<double> ConvertToRGBA32(cons
+         size_t j = (y * xsize + x) * 4;
+         size_t i = y * stride + x * num_channels * 2;
+         double r, g, b, a;
+-        if (format.endianness == JXL_BIG_ENDIAN) {
++        if (endianness == JXL_BIG_ENDIAN) {
+           r = (pixels[i + 0] << 8) + pixels[i + 1];
+           g = gray ? r : (pixels[i + 2] << 8) + pixels[i + 3];
+           b = gray ? r : (pixels[i + 4] << 8) + pixels[i + 5];
+@@ -460,12 +466,13 @@ std::vector<double> ConvertToRGBA32(cons
+       }
+     }
+   } else if (format.data_type == JXL_TYPE_FLOAT) {
++    JXL_ASSERT(endianness != JXL_NATIVE_ENDIAN);
+     for (size_t y = 0; y < ysize; ++y) {
+       for (size_t x = 0; x < xsize; ++x) {
+         size_t j = (y * xsize + x) * 4;
+         size_t i = y * stride + x * num_channels * 4;
+         double r, g, b, a;
+-        if (format.endianness == JXL_BIG_ENDIAN) {
++        if (endianness == JXL_BIG_ENDIAN) {
+           r = LoadBEFloat(pixels + i);
+           g = gray ? r : LoadBEFloat(pixels + i + 4);
+           b = gray ? r : LoadBEFloat(pixels + i + 8);
+@@ -483,12 +490,13 @@ std::vector<double> ConvertToRGBA32(cons
+       }
+     }
+   } else if (format.data_type == JXL_TYPE_FLOAT16) {
++    JXL_ASSERT(endianness != JXL_NATIVE_ENDIAN);
+     for (size_t y = 0; y < ysize; ++y) {
+       for (size_t x = 0; x < xsize; ++x) {
+         size_t j = (y * xsize + x) * 4;
+         size_t i = y * stride + x * num_channels * 2;
+         double r, g, b, a;
+-        if (format.endianness == JXL_BIG_ENDIAN) {
++        if (endianness == JXL_BIG_ENDIAN) {
+           r = LoadBEFloat16(pixels + i);
+           g = gray ? r : LoadBEFloat16(pixels + i + 2);
+           b = gray ? r : LoadBEFloat16(pixels + i + 4);

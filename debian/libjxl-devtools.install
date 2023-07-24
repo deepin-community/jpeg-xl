@@ -1,0 +1,13 @@
+usr/bin/benchmark_xl
+usr/bin/butteraugli_main
+usr/bin/decode_and_encode
+usr/bin/display_to_hlg
+usr/bin/fuzzer_corpus
+usr/bin/generate_lut_template
+usr/bin/jxl_from_tree
+usr/bin/pq_to_hlg
+usr/bin/render_hlg
+usr/bin/ssimulacra_main
+usr/bin/texture_to_cube
+usr/bin/tone_map
+usr/bin/xyb_range
