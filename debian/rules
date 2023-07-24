@@ -1,4 +1,120 @@
 #!/usr/bin/make -f
 
+include /usr/share/dpkg/default.mk
+
+# keep same order as https://buildd.debian.org/status/package.php?p=google-perftools&suite=sid
+TCMALLOC_ARCHS=amd64 arm64 armel armhf i386 mips64el mipsel ppc64el s390x kfreebsd-amd64 kfreebsd-i386 powerpc ppc64 riscv64
+ifeq ($(DEB_HOST_ARCH),$(filter $(DEB_HOST_ARCH),$(TCMALLOC_ARCHS)))
+  ENABLE_TCMALLOC=ON
+else
+  ENABLE_TCMALLOC=OFF
+endif
+
+JAVA_ARCHS=amd64 arm64 armel armhf i386 mips64el mipsel ppc64el s390x alpha ia64 m68k powerpc ppc64 riscv64 sh4 sparc64 x32
+ifeq ($(DEB_HOST_ARCH),$(filter $(DEB_HOST_ARCH),$(JAVA_ARCHS)))
+  ENABLE_JNI=ON
+else
+  ENABLE_JNI=OFF
+endif
+
+ifneq (,$(filter $(DEB_HOST_ARCH), armhf))
+  # gcc-12 12.2.0-3 produces wrong code with -O2:
+  # https://buildd.debian.org/status/fetch.php?pkg=jpeg-xl&arch=armhf&ver=0.7.0-2&stamp=1664702466&raw=0
+  DEB_CXXFLAGS_MAINT_APPEND += -fno-tree-vectorize
+endif
+
+ifneq (,$(filter $(DEB_HOST_ARCH), arm64 armel armhf ppc64el))
+  # https://gcc.gnu.org/bugzilla/show_bug.cgi?id=77728
+  DEB_CXXFLAGS_MAINT_APPEND += -Wno-psabi
+endif
+export DEB_CXXFLAGS_MAINT_APPEND
+
+# Copy/paste from ci.sh `cmd_opt`:
+DEB_CXXFLAGS_MAINT_APPEND += -DJXL_DEBUG_WARNING -DJXL_DEBUG_ON_ERROR
+
+# deduce documentation option (build-indep target)
+ifeq "" "$(filter %-doc,$(shell dh_listpackages))"
+  ENABLE_DOXYGEN = OFF
+else
+  ENABLE_DOXYGEN = ON
+endif
+
+ifeq (,$(filter nocheck,$(DEB_BUILD_OPTIONS)))
+  BUILD_TESTING=ON
+else
+  BUILD_TESTING=OFF
+endif
+
 %:
-	dh $@
+	dh $@ --buildsystem=cmake+ninja
+
+# JPEGXL_ENABLE_PLUGINS is currently OFF see #1001786 for rational
+CMAKE_EXTRA_FLAGS += \
+	-DBUILD_TESTING:BOOL=$(BUILD_TESTING) \
+	-DCMAKE_SKIP_RPATH:BOOL=ON \
+	-DJPEGXL_BUNDLE_SKCMS:BOOL=OFF \
+	-DJPEGXL_ENABLE_BENCHMARK:BOOL=ON \
+	-DJPEGXL_ENABLE_DEVTOOLS:BOOL=ON \
+	-DJPEGXL_ENABLE_DOXYGEN:BOOL=$(ENABLE_DOXYGEN) \
+	-DJPEGXL_ENABLE_EXAMPLES:BOOL=ON \
+	-DJPEGXL_ENABLE_JNI:BOOL=$(ENABLE_JNI) \
+	-DJPEGXL_ENABLE_OPENEXR:BOOL=ON \
+	-DJPEGXL_ENABLE_PLUGINS:BOOL=OFF \
+	-DJPEGXL_ENABLE_SJPEG:BOOL=OFF \
+	-DJPEGXL_ENABLE_SKCMS:BOOL=OFF \
+	-DJPEGXL_ENABLE_TCMALLOC:BOOL=$(ENABLE_TCMALLOC) \
+	-DJPEGXL_FORCE_SYSTEM_BROTLI:BOOL=ON \
+	-DJPEGXL_FORCE_SYSTEM_GTEST:BOOL=ON \
+	-DJPEGXL_FORCE_SYSTEM_HWY:BOOL=ON \
+	-DJPEGXL_FORCE_SYSTEM_LCMS2:BOOL=ON \
+	-DJPEGXL_INSTALL_JARDIR:PATH=share/java \
+	-DJPEGXL_INSTALL_JNIDIR:PATH=lib/$(DEB_HOST_MULTIARCH)/jni \
+	-DJPEGXL_TEST_DATA_PATH:PATH=/usr/share/libjxl-testdata \
+
+override_dh_auto_configure:
+	dh_auto_configure -- $(CMAKE_EXTRA_FLAGS)
+
+override_dh_auto_build-indep:
+	dh_auto_build -- doc
+
+override_dh_auto_install-indep:
+
+override_dh_install-indep:
+	dh_install -X.md5 -pjpeg-xl-doc obj-*/html usr/share/doc/jpeg-xl-doc
+
+override_dh_auto_test-indep:
+
+override_dh_auto_test-arch:
+	timeout 4h dh_auto_test --
+
+override_dh_installman-arch: tools_manpages devtools_manpages
+	dh_installman
+
+override_dh_clean-arch:
+	dh_clean debian/*.1
+	# by-product of `conformance_tooling_test`:
+	dh_clean tools/conformance/__pycache__/lcms2.cpython-*.pyc
+
+debian/control: debian/control.in
+	sed -e "s/@TCMALLOC_ARCHS@/$(TCMALLOC_ARCHS)/g;s/@JAVA_ARCHS@/$(JAVA_ARCHS)/g;" $< > $@
+
+FILE=debian/libjxl-devtools.install
+DEVTOOLS=`cat $(FILE) | sed  's@usr/bin@debian@' | sed 's/$$/.1/' | tr '\n' ' '`
+
+VER_FULL = $(DEB_VERSION_UPSTREAM)
+
+debian/%.1: debian/%.1.in
+	LD_PRELOAD= LD_LIBRARY_PATH=./debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH) help2man --no-discard-stderr --include=$< --output=$@ --help-option=--help --version-string=$(VER_FULL) --no-info ./debian/tmp/usr/bin/`basename $@ .1`
+
+.PHONY: tools_manpages devtools_manpages get-orig-source
+
+tools_manpages: debian/cjpeg_hdr.1 debian/jxlinfo.1
+	echo "all tools manpages generated"
+
+devtools_manpages: debian/butteraugli_main.1 debian/decode_and_encode.1 debian/display_to_hlg.1 debian/fuzzer_corpus.1 debian/generate_lut_template.1 debian/jxl_from_tree.1 debian/pq_to_hlg.1 debian/render_hlg.1 debian/ssimulacra_main.1 debian/texture_to_cube.1 debian/tone_map.1 debian/xyb_range.1 debian/benchmark_xl.1
+	echo $(DEVTOOLS)
+	echo "all devtools manpages generated"
+
+# https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=902846
+get-orig-source:
+	uscan --download --force-download --rename

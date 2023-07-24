@@ -1,0 +1,13 @@
+debian/benchmark_xl.1
+debian/butteraugli_main.1
+debian/decode_and_encode.1
+debian/display_to_hlg.1
+debian/fuzzer_corpus.1
+debian/generate_lut_template.1
+debian/jxl_from_tree.1
+debian/pq_to_hlg.1
+debian/render_hlg.1
+debian/ssimulacra_main.1
+debian/texture_to_cube.1
+debian/tone_map.1
+debian/xyb_range.1

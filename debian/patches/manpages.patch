@@ -1,0 +1,350 @@
+Description: Clean up man pages
+Author: Mathieu Malaterre <malat@debian.org>
+Forwarded: https://github.com/libjxl/libjxl/pull/1288
+Last-Update: 2022-03-29
+
+Index: libjxl/doc/man/cjxl.txt
+===================================================================
+--- libjxl.orig/doc/man/cjxl.txt
++++ libjxl/doc/man/cjxl.txt
+@@ -31,40 +31,31 @@ cjxl input.gif output.jxl
+ Options
+ -------
+ 
+--h::
+---help::
+-    Displays the options that `cjxl` supports. On its own, it will only show
+-    basic options. It can be combined with `-v` or `-v -v` to show increasingly
+-    advanced options as well.
++--container='0|1'::
++    0 = Do not encode using container format (strip Exif/XMP/JPEG bitstream reconstruction data).1 = Force using container format (default: use only if needed).
+ 
+--v::
+---verbose::
+-    Increases verbosity. Can be repeated to increase it further, and also
+-    applies to `--help`.
++--jpeg_store_metadata='0|1'::
++    If --lossless_jpeg=1, store JPEG reconstruction metadata in the JPEG XL container (for lossless reconstruction of the JPEG codestream).(default: 1)
+ 
+ -d 'distance'::
+ --distance='distance'::
+-    The preferred way to specify quality. It is specified in multiples of a
+-    just-noticeable difference. That is, `-d 0` is mathematically lossless,
+-    `-d 1` should be visually lossless, and higher distances yield denser and
+-    denser files with lower and lower fidelity. Lossy sources such as JPEG and
+-    GIF files are compressed losslessly by default, and in the case of JPEG
+-    files specifically, the original JPEG can then be reconstructed bit-for-bit.
+-    For lossless sources, `-d 1` is the default.
++    Max. butteraugli distance, lower = higher quality.
++    0.0 = mathematically lossless. Default for already-lossy input (JPEG/GIF).
++    1.0 = visually lossless. Default for other input.
++    Recommended range: 0.5 .. 3.0. Mutually exclusive with --quality.
+ 
+ -q 'quality'::
+ --quality='quality'::
+-    Alternative way to indicate the desired quality. 100 is lossless and lower
+-    values yield smaller files. There is no lower bound to this quality
+-    parameter, but positive values should approximately match the quality
+-    setting of libjpeg.
++    Quality setting (is remapped to --distance). Range: -inf .. 100.
++    100 = mathematically lossless. Default for already-lossy input (JPEG/GIF).
++    Other input gets encoded as per --distance default.
++    Positive quality values roughly match libjpeg quality.
++    Mutually exclusive with --distance.
+ 
+ -e 'effort'::
+ --effort='effort'::
+-    Controls the amount of effort that goes into producing an ``optimal'' file
+-    in terms of quality/size. That is to say, all other parameters being equal,
+-    a higher effort should yield a file that is at least as dense and possibly
+-    denser, and with at least as high and possibly higher quality.
++    Encoder effort setting. Range: 1 .. 9.
++    Default: 7. Higher number is more effort (slower).
+ +
+ Recognized effort settings, from fastest to slowest, are:
+ +
+@@ -78,6 +69,176 @@ Recognized effort settings, from fastest
+ - 8 or ``kitten''
+ - 9 or ``tortoise''
+ 
++--brotli_effort='B_EFFORT'::
++    Brotli effort setting. Range: 0 .. 11.
++    Default: 9. Higher number is more effort (slower).
++
++--faster_decoding='0|1|2|3|4'::
++    Favour higher decoding speed. 0 = default, higher values give higher speed at the expense of quality
++
++-p::
++--progressive::
++    Enable progressive/responsive decoding.
++
++--premultiply='-1|0|1'::
++    Force premultiplied (associated) alpha.
++
++--keep_invisible='0|1'::
++    Force disable/enable preserving color of invisible pixels (default: 1 if
++    lossless, 0 if lossy).
++
++--group_order='0|1'::
++    Order in which 256x256 groups are stored in the codestream for progressive rendering. Value not provided means 'encoder default', 0 means 'scanline order', 1 means 'center-first order'.
++
++--center_x='0..XSIZE'::
++    Determines the horizontal position of center for the center-first group order. The value -1 means 'use the middle of the image', other values [0..xsize) set this to a particular coordinate.
++
++--center_y='0..YSIZE'::
++    Determines the vertical position of center for the center-first group order. The value -1 means 'use the middle of the image', other values [0..ysize) set this to a particular coordinate.
++
++--progressive_ac::
++    Use the progressive mode for AC.
++
++--qprogressive_ac::
++    Use the progressive mode for AC with shift quantization.
++
++--progressive_dc='num_dc_frames'::
++    Progressive-DC setting. Valid values are: -1, 0, 1, 2.
++
++-m='0|1'::
++--modular='0|1'::
++    Use modular mode (not provided = encoder chooses, 0 = enforce VarDCT, 1 = enforce modular mode).
++
++-j='0|1'::
++--lossless_jpeg='0|1'::
++    If the input is JPEG, losslessly transcode JPEG, rather than using reencode pixels.
++
++--jpeg_reconstruction_cfl='0|1'::
++    Enable/disable chroma-from-luma (CFL) for lossless JPEG reconstruction.
++
++--num_threads='N'::
++    Number of worker threads (-1 == use machine default, 0 == do not use multithreading).
++
++--num_reps='N'::
++    How many times to compress. (For benchmarking).
++
++--photon_noise='ISO3200'::
++    Adds noise to the image emulating photographic film noise. The higher the given number, the grainier the image will be. As an example, a value of 100 gives low noise whereas a value of 3200 gives a lot of noise. The default value is 0.
++
++--dots='0|1'::
++    Force disable/enable dots generation. (not provided = default, 0 = disable, 1 = enable).
++
++--patches='0|1'::
++    Force disable/enable patches generation. (not provided = default, 0 = disable, 1 = enable).
++
++--resampling='-1|1|2|4|8'::
++    Resampling for extra channels. Default of -1 applies resampling only for low quality. Value 1 does no downsampling (1x1), 2 does 2x2 downsampling, 4 is for 4x4 downsampling, and 8 for 8x8 downsampling.
++
++--ec_resampling='1|2|4|8'::
++    Resampling for extra channels. Default of -1 applies resampling only for low quality. Value 1 does no downsampling (1x1), 2 does 2x2 downsampling, 4 is for 4x4 downsampling, and 8 for 8x8 downsampling.
++
++--already_downsampled::
++    Do not downsample the given input before encoding, but still signal that the decoder should upsample.
++
++--epf='-1|0|1|2|3'::
++    Edge preserving filter level, -1 to 3. Value -1 means: default (encoder chooses), 0 to 3 set a strength.
++
++--gaborish='0|1'::
++    Force disable/enable the gaborish filter. (not provided = default, 0 = disable, 1 = enable).
++
++--intensity_target='N'::
++    Upper bound on the intensity level present in the image in nits. Leaving this set to its default of 0 lets libjxl choose a sensible default value based on the color encoding.
++
++-x='key=value'::
++--dec-hints='key=value'::
++    color_space indicates the ColorEncoding, see Description(); icc_pathname refers to a binary file containing an ICC profile.
++
++--override_bitdepth=0=use from image, 1-32=override
++    If nonzero, store the given bit depth in the JPEG XL file metadata (1-32), instead of using the bit depth from the original input image.
++
++-I 'F'::
++--iterations='F'::
++    [modular encoding] Fraction of pixels used to learn MA trees as a percentage. -1 = default, 0 = no MA and fast decode, 50 = default value, 100 = all.Higher values use more encoder memory.
++
++-C 'K'::
++--modular_colorspace='K'::
++    [modular encoding] color transform: -1=default, 0=RGB (none), 1-41=RCT (6=YCoCg, default: try several, depending on speed)
++
++-g 'K'::
++--modular_group_size='K'::
++    [modular encoding] group size: -1 == default. 0 => 128, 1 => 256, 2 => 512, 3 => 1024
++
++-P 'K'::
++--modular_predictor='K'::
++    [modular encoding] predictor(s) to use:
+++
++- 0=zero,
++- 1=left,
++- 2=top,
++- 3=avg0,
++- 4=select,
++- 5=gradient,
++- 6=weighted,
++- 7=topright,
++- 8=topleft,
++- 9=leftleft,
++- 10=avg1,
++- 11=avg2,
++- 12=avg3,
++- 13=toptop predictive average
++- 14=mix 5 and 6,
++- 15=mix everything.
+++
++Default 14, at slowest speed default 15
++
++-E 'K'::
++--modular_nb_prev_channels='K'::
++    [modular encoding] number of extra MA tree properties to use
++
++--modular_palette_colors='K'::
++    [modular encoding] Use color palette if number of colors is smaller than or equal to this, or -1 to use the encoder default.
++
++--modular_lossy_palette::
++    [modular encoding] quantize to a palette that has fewer entries than would be necessary for perfect preservation; for the time being, it is recommended to set --palette=0 with this option to use the default palette only
++
++-X 'PERCENT'::
++--pre-compact='PERCENT'::
++    [modular encoding] Use Global channel palette if the number of colors is smaller than this percentage of range. Use 0-100 to set an explicit percentage, -1 to use the encoder default.
++
++-Y 'PERCENT'::
++--post-compact='PERCENT'::
++    [modular encoding] Use Local (per-group) channel palette if the number of colors is smaller than this percentage of range. Use 0-100 to set an explicit percentage, -1 to use the encoder default.
++
++--codestream_level='K'::
++    The codestream level. Either `-1`, `5` or `10`.
++
++-R 'K'::
++--responsive='K'::
++    [modular encoding] do Squeeze transform, 0=false, 1=true (default: true if lossy, false if lossless)
++
++-V
++--version::
++    Print encoder library version number and exit.
++
++--quiet::
++    Be more silent
++
++--frame_indexing='string'::
++    If non-empty, a string matching '^(0*|1[01]*)'. If this string has a '1' in i-th position, then the i-th frame will be indexed in the frame index box.
++
++-v::
++--verbose::
++    Increases verbosity. Can be repeated to increase it further, and also
++    applies to `--help`.
++
++-h::
++--help::
++    Displays the options that `cjxl` supports. On its own, it will only show
++    basic options. It can be combined with `-v` or `-v -v` to show increasingly
++    advanced options as well.
++
++
++
+ Examples
+ --------
+ 
+Index: libjxl/doc/man/djxl.txt
+===================================================================
+--- libjxl.orig/doc/man/djxl.txt
++++ libjxl/doc/man/djxl.txt
+@@ -24,23 +24,65 @@ produced, with names of the form "'outpu
+ Options
+ -------
+ 
+--h::
+---help::
+-    Displays the options that `djxl` supports.
++-V::
++--version::
++    Print version number and exit
++
++--num_reps='N'::
++    Sets the number of times to decompress the image. Used for benchmarking, the default is 1.
++
++--num_threads='N'::
++    Sets the number of threads to use. The default 0 value means the machine default.
++
++--bits_per_sample='N'::
++    Sets the output bit depth. The default 0 value means the original (input) bit depth.
++
++--display_nits='0.3-250'::
++    If set to a non-zero value, tone maps the image the given peak display luminance.
++
++--color_space='RGB_D65_SRG_Rel_Lin'::
++    Defaults to original (input) color space
++
++-s 'N'::
++--downsampling='N'::
++    If set and the input JXL stream is progressive and contains hints for target downsampling ratios, the decoder will skip any progressive passes that are not needed to produce a partially decoded image intended for this downsampling ratio.
++
++--allow_partial_files::
++    Allow decoding of truncated files.
+ 
+ -j::
+ --pixels_to_jpeg::
+-    By default, if the input JPEG XL contains a recompressed JPEG file,
+-    djxl reconstructs the exact original JPEG file if the output file has the
+-    `.jpg` (or `.jpeg`) filename extension.
+-    This flag causes the decoder to instead decode the image to pixels and
+-    encode a new (lossy) JPEG in this case.
++    By default, if the input JPEG XL contains a recompressed JPEG file, djxl reconstructs the exact original JPEG file. This flag causes the decoder to instead decode the image to pixels and encode a new (lossy) JPEG. The output file if provided must be a .jpg or .jpeg file.
++
++-q 'N'::
++--jpeg_quality='N'::
++    Sets the JPEG output quality, default is 95. Setting an output quality implies --pixels_to_jpeg.
++
++--norender_spotcolors
++    Disables rendering spot colors.
++
++--preview_out='FILENAME'::
++    If specified, writes the preview image to this file.
++
++--icc_out='FILENAME'::
++    If specified, writes the ICC profile of the decoded image to this file.
++
++--orig_icc_out='FILENAME'::
++    If specified, writes the ICC profile of the original image to this file. This can be different from the ICC profile of the decoded image if --color_space was specified, or if the image was XYB encoded and the color conversion to the original profile was not supported by the decoder.
+ 
++--metadata_out='FILENAME'::
++    If specified, writes decoded metadata info to this file in JSON format. Used by the conformance test script
++
++--print_read_bytes::
++   Print total number of decoded bytes.
++
++--quiet::
++   Silence output (except for errors).
++
++-h::
++--help::
++    Displays the options that `djxl` supports.
+ 
+--q 'quality'::
+---jpeg_quality='quality'::
+-    When decoding to `.jpg`, use this output quality. This option implicitly
+-    enables the --pixels_to_jpeg option.
+ 
+ 
+ Examples
+@@ -54,6 +96,25 @@ $ djxl input.jxl output.png
+ $ djxl lossless-jpeg.jxl reconstructed.jpeg
+ ----
+ 
++# Lossless compression
++
++Lossless pixel compression only preserves the pixels losslessly, not the input
++bitstream. To check that the pixels are identical, one can do something like
++the following (if this says 0, then the maximum pixel error is 0, so it's
++lossless):
++
++----
++# Lossless compression of PNG:
++$ cjxl -d 0.0 input.png lossless.png
++
++# Decompress a JPEG XL file to PNG
++$ djxl lossless.jxl lossless.png
++
++$ compare -metric pae input.png lossless.png null:
++0 (0)
++----
++
++
+ 
+ See also
+ --------

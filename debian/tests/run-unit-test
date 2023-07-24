@@ -1,0 +1,70 @@
+#!/bin/sh
+set -e
+
+pkg=jpeg-xl
+
+CUR_DIR=`pwd`
+
+export LC_ALL=C.UTF-8
+if [ "${AUTOPKGTEST_TMP}" = "" ] ; then
+  AUTOPKGTEST_TMP=$(mktemp -d /tmp/${pkg}-test.XXXXXX)
+  trap "rm -rf ${AUTOPKGTEST_TMP}" 0 INT QUIT ABRT PIPE TERM
+fi
+
+cd "${AUTOPKGTEST_TMP}"
+
+echo "Running Tests"
+
+echo "Test - Compression Ratio"
+
+cjxl /usr/share/libjxl-testdata/jxl/flower/flower.png flower.jxl
+jxlinfo flower.jxl
+djxl flower.jxl flower.png
+fsize=$(du -sb flower.jxl | cut -f1)
+
+if [ $fsize -gt 451040 ]; then
+  echo "Invalid compression size: $fsize";
+fi
+
+echo "Test - Lossless Roundtrip"
+
+cjxl -d 0.0 /usr/share/libjxl-testdata/jxl/splines.pfm splines1.jxl
+djxl splines1.jxl splines1.pfm
+
+echo "8e701bd2ec27c4a2ea3ea0cdb12084e2  splines1.pfm" >> checksums
+
+# Simply verify we can decompress it. The decompression does not always gives
+# the same exact output. See: https://github.com/libjxl/libjxl/issues/1811
+djxl /usr/share/libjxl-testdata/jxl/splines.jxl splines2.ppm
+
+jxl_from_tree /usr/share/libjxl-testdata/jxl/splines.tree splines3.jxl
+cmp /usr/share/libjxl-testdata/jxl/splines.jxl splines3.jxl
+
+echo "222fcf2d528904bc796a7c3a3c64cd76  splines3.jxl" >> checksums
+
+cjxl -d 0.0 /usr/share/libjxl-testdata/jxl/grayscale_patches.png grayscale_patches.jxl
+djxl grayscale_patches.jxl grayscale_patches.pgm
+
+echo "0982d900a5829bbcba4a02b49f9a3bd9  grayscale_patches.pgm" >> checksums
+
+cjxl /usr/share/libjxl-testdata/jxl/traffic_light.gif traffic_light.jxl
+djxl traffic_light.jxl traffic_light.ppm
+
+echo "ac565959b806af8f47dba351cb5f063a  traffic_light-0.ppm" >> checksums
+echo "bd4e44f3d528728a9c44c5c76171bfd1  traffic_light-1.ppm" >> checksums
+echo "bd491d5de71a513a19529510086c36a7  traffic_light-2.ppm" >> checksums
+echo "cc49992a92e548b870c474aa2222048f  traffic_light-3.ppm" >> checksums
+
+cjxl /usr/share/libjxl-testdata/jxl/animation_patches.gif animation_patches.jxl
+djxl animation_patches.jxl animation_patches.ppm
+
+echo "0f4ab911d078b371791191ddd3352214  animation_patches-0.ppm" >> checksums
+echo "127d286f7c60aebdd797e64bba72cfdb  animation_patches-1.ppm" >> checksums
+
+djxl /usr/share/libjxl-testdata/jxl/pq_gradient.jxl pq_gradient.ppm
+
+echo "d7ae3496cd5b0acae95280d84b9f78ff  pq_gradient.ppm" >> checksums
+
+md5sum --check checksums
+
+echo "run-unit-test: OK"

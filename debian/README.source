@@ -1,0 +1,10 @@
+Upstream on github currently uses submodules for the thirdparty libraries. This
+is currently unhandled by uscan:
+
+* https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=902846
+
+One need instead to git clone libjxl and then:
+
+  git submodule update --init -- third_party/highway third_party/lodepng
+
+ -- Mathieu Malaterre <malat@debian.org>  Tue, 14 Dec 2021 10:29:22 +0100

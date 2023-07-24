@@ -1,0 +1,12 @@
+libjxl ABI seems to be C-only. However the whole library is written in c++ with
+heavy use of libstdc++. libjxl is compiled with flags `-fno-exceptions` but is
+linked againt the throwing libstdc++ from Debian.
+
+This matter has been discussed with upstream, and it is not clear to the
+package maintainer what is supposed to happen when libstdc++ is throwing an
+exception, since it cannot propagate after the C-only ABI.
+
+Ref:
+* https://github.com/libjxl/libjxl/issues/904
+
+ -- Mathieu Malaterre <malat@debian.org>  Tue, 14 Dec 2021 10:29:22 +0100
