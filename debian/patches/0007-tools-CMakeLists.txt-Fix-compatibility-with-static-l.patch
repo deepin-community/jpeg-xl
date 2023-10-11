@@ -1,0 +1,27 @@
+From: Boyuan Yang <byang@debian.org>
+Date: Fri, 22 Sep 2023 17:12:33 -0400
+Subject: tools/CMakeLists.txt: Fix compatibility with static libwebp 1.3.x
+
+Bug-Debian: https://bugs.debian.org/1052486
+
+---
+ tools/CMakeLists.txt | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/tools/CMakeLists.txt b/tools/CMakeLists.txt
+index 934ed89..6556845 100644
+--- a/tools/CMakeLists.txt
++++ b/tools/CMakeLists.txt
+@@ -249,7 +249,12 @@ if(JPEGXL_ENABLE_BENCHMARK AND JPEGXL_ENABLE_TOOLS)
+       message(WARNING "Using dynamic libwebp")
+       target_link_libraries(benchmark_xl PkgConfig::WebP)
+     else()
++      # Debian-specific patch
++      # libwebp 1.3.x: libsharpyuv static library must be linked as well
++      find_library(SHARPYUV_STATIC_LINK_LIBRARY NAMES libsharpyuv.a
++          PATHS "${WebP_LIBDIR}" REQUIRED)
+       target_link_libraries(benchmark_xl "${WebP_STATIC_LINK_LIBRARY}")
++      target_link_libraries(benchmark_xl "${SHARPYUV_STATIC_LINK_LIBRARY}")
+       target_include_directories(benchmark_xl
+           PRIVATE ${WebP_STATIC_INCLUDE_DIRS})
+       target_compile_options(benchmark_xl PRIVATE ${WebP_STATIC_CFLAGS_OTHER})

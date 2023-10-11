@@ -23,6 +23,9 @@ ifneq (,$(filter $(DEB_HOST_ARCH), armhf))
   DEB_CXXFLAGS_MAINT_APPEND += -fno-tree-vectorize
 endif
 
+# Temp fix for 0.7.0-10.x i386/s390x build; see https://bugs.debian.org/1053641
+DEB_CXXFLAGS_MAINT_APPEND += -fexcess-precision=fast
+
 ifneq (,$(filter $(DEB_HOST_ARCH), arm64 armel armhf ppc64el))
   # https://gcc.gnu.org/bugzilla/show_bug.cgi?id=77728
   DEB_CXXFLAGS_MAINT_APPEND += -Wno-psabi

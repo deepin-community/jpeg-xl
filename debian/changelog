@@ -1,3 +1,31 @@
+jpeg-xl (0.7.0-10.2) unstable; urgency=medium
+
+  * Non-maintainer upload.
+  
+  [ Boyuan Yang ]
+  * debian/rules: Temporarily enable CXXFLAGS -fexcess-precision=fast
+    to avoid test failure for i386, s390x. Patch suggested by Adrian Bunk.
+    (See #1053641)
+  * debian/patches/:
+    + 0009-fast_dct-inl.h-Include-std-headers-to-solve-missing-.patch:
+      Add missing headers to avoid FTBFS on arm64 for std::round().
+
+ -- Boyuan Yang <byang@debian.org>  Sat, 07 Oct 2023 20:36:24 -0400
+
+jpeg-xl (0.7.0-10.1) unstable; urgency=medium
+
+  * Non-maintainer upload.
+
+  [ Boyuan Yang ]
+  * debian/patches/:
+    + 0007-tools-CMakeLists.txt-Fix-compatibility-with-static-l.patch:
+      Fix compatibility with libwebp 1.3.x. (Closes: #1052486)
+    * 0008-Fix-conformance-test.patch: Fix unit test that was previously
+      skipped but now failing. (Closes: #1051560)
+  * debian/control: Require libwebp-dev (>= 1.3) due to patch 0007.
+
+ -- Boyuan Yang <byang@debian.org>  Sat, 23 Sep 2023 12:52:43 -0400
+
 jpeg-xl (0.7.0-10) unstable; urgency=medium
 
   * d/patches: Improve cjxl/djxl manpages. Closes: #1023641

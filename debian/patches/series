@@ -4,3 +4,6 @@ roundtriplargefast.patch
 de08116d14db785431f3efb651dcf2af15bbb682.patch
 1a36db0bf452a2232f0a15d7d8edb542e8196401.patch
 manpages.patch
+0007-tools-CMakeLists.txt-Fix-compatibility-with-static-l.patch
+0008-Fix-conformance-test.patch
+0009-fast_dct-inl.h-Include-std-headers-to-solve-missing-.patch

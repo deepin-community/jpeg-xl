@@ -1,0 +1,36 @@
+From: Boyuan Yang <byang@debian.org>
+Date: Fri, 22 Sep 2023 17:34:23 -0400
+Subject: Fix conformance test
+
+Bug-Debian: https://bugs.debian.org/1051560
+
+---
+ tools/conformance/generator.py    | 2 +-
+ tools/conformance/tooling_test.sh | 1 +
+ 2 files changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/tools/conformance/generator.py b/tools/conformance/generator.py
+index e2a9b2e..d59c3f4 100755
+--- a/tools/conformance/generator.py
++++ b/tools/conformance/generator.py
+@@ -67,7 +67,7 @@ def GenerateConformanceCorpus(args):
+         cmd.extend(['--icc_out', pixel_prefix + '.icc'])
+ 
+         # Decode and generate the reference files.
+-        subprocess.check_call(cmd)
++        subprocess.check_call(' '.join(cmd), shell=True)
+ 
+         with open(metadata_filename, 'r') as f:
+             metadata = json.load(f)
+diff --git a/tools/conformance/tooling_test.sh b/tools/conformance/tooling_test.sh
+index 95adefb..892b7a2 100755
+--- a/tools/conformance/tooling_test.sh
++++ b/tools/conformance/tooling_test.sh
+@@ -41,6 +41,7 @@ main() {
+     build_dir=$(realpath "${MYDIR}/../../build")
+   fi
+ 
++  export LD_LIBRARY_PATH=${build_dir}
+   local decoder="${build_dir}/tools/djxl"
+   "${MYDIR}/generator.py" \
+     --decoder="${decoder}" \
