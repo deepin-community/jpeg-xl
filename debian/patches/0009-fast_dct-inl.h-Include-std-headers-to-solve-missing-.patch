@@ -1,0 +1,28 @@
+From: Boyuan Yang <byang@debian.org>
+Date: Sat, 7 Oct 2023 20:24:01 -0400
+Subject: fast_dct-inl.h: Include std headers to solve missing std::round on
+ arm64
+
+Using std::round() needs at least <cmath>, and possibly <array>.
+This patch is a hotfix to circumvent build errors caused by the
+missing of headers on arm64.
+
+Ref: https://buildd.debian.org/status/fetch.php?pkg=jpeg-xl&arch=arm64&ver=0.7.0-10.1&stamp=1696704163&raw=0
+---
+ lib/jxl/fast_dct-inl.h | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/lib/jxl/fast_dct-inl.h b/lib/jxl/fast_dct-inl.h
+index defdfcd..0999095 100644
+--- a/lib/jxl/fast_dct-inl.h
++++ b/lib/jxl/fast_dct-inl.h
+@@ -15,6 +15,9 @@
+ 
+ #include "lib/jxl/base/status.h"
+ 
++#include <cmath>
++#include <array>
++
+ HWY_BEFORE_NAMESPACE();
+ namespace jxl {
+ namespace HWY_NAMESPACE {

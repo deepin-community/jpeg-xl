@@ -23,7 +23,7 @@ Build-Depends: asciidoc-base,
                liblcms-dev | liblcms2-dev (>= 2.13),
                libopenexr-dev,
                libpng-dev,
-               libwebp-dev,
+               libwebp-dev (>= 1.3),
                ninja-build,
                pkg-config
 Build-Depends-Indep: doxygen, graphviz
