@@ -1,3 +1,10 @@
+jpeg-xl (0.7.0-10.2deepin1) unstable; urgency=medium
+
+  * Fix CVE-2025-12474: uninitialized memory read in low memory render
+    pipeline
+
+ -- deepin-ci-robot <packages@deepin.org>  Wed, 20 May 2026 17:45:40 +0800
+
 jpeg-xl (0.7.0-10.2deepin0) unstable; urgency=medium
 
   * No source change upload against GCC 12.
