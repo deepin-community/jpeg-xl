@@ -1,0 +1,89 @@
+Description: Attempt to fix symbols mess
+Author: Mathieu Malaterre <malat@debian.org>
+Last-Update: 2024-07-05
+
+Index: libjxl/lib/jxl_extras.cmake
+===================================================================
+--- libjxl.orig/lib/jxl_extras.cmake
++++ libjxl/lib/jxl_extras.cmake
+@@ -5,6 +5,9 @@
+ 
+ include(jxl_lists.cmake)
+ 
++# Headers for exporting/importing public headers
++include(GenerateExportHeader)
++
+ # Object library for those parts of extras that do not depend on jxl internals
+ # or jpegli. We will create two versions of these object files, one with and one
+ # without external codec support compiled in.
+@@ -162,6 +165,22 @@ set_target_properties(jxl_extras_codec P
+   VERSION ${JPEGXL_LIBRARY_VERSION}
+   SOVERSION ${JPEGXL_LIBRARY_SOVERSION}
+ )
++generate_export_header(jxl_extras_codec
++  BASE_NAME JXL_EXTRAS_CODEC
++  EXPORT_FILE_NAME include/jxl/jxl_extras_codec_export.h)
++set_target_properties(jxl_extras_codec PROPERTIES
++    LINK_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/jxl/jxl.version)
++if(APPLE)
++  set_property(TARGET jxl_extras_codec APPEND_STRING PROPERTY
++      LINK_FLAGS "-Wl,-exported_symbols_list,${CMAKE_CURRENT_SOURCE_DIR}/jxl/jxl_osx.syms")
++elseif(WIN32)
++# Nothing needed here, we use __declspec(dllexport)
++else()
++  set_property(TARGET jxl_extras_codec APPEND_STRING PROPERTY
++      LINK_FLAGS " -Wl,--version-script=${CMAKE_CURRENT_SOURCE_DIR}/jxl/jxl.version")
++endif()  # APPLE
++
++
+ install(TARGETS jxl_extras_codec
+   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+Index: libjxl/lib/jxl_threads.cmake
+===================================================================
+--- libjxl.orig/lib/jxl_threads.cmake
++++ libjxl/lib/jxl_threads.cmake
+@@ -41,7 +41,7 @@ set_target_properties(jxl_threads PROPER
+ set_target_properties(jxl_threads PROPERTIES
+     LINK_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/jxl/jxl.version)
+ if(APPLE)
+-  set_property(TARGET ${target} APPEND_STRING PROPERTY
++  set_property(TARGET jxl_threads APPEND_STRING PROPERTY
+       LINK_FLAGS "-Wl,-exported_symbols_list,${CMAKE_CURRENT_SOURCE_DIR}/jxl/jxl_osx.syms")
+ elseif(WIN32)
+ # Nothing needed here, we use __declspec(dllexport) (jxl_threads_export.h)
+Index: libjxl/lib/extras/enc/jxl.h
+===================================================================
+--- libjxl.orig/lib/extras/enc/jxl.h
++++ libjxl/lib/extras/enc/jxl.h
+@@ -7,6 +7,7 @@
+ #define LIB_EXTRAS_ENC_JXL_H_
+ 
+ #include <jxl/encode.h>
++#include <jxl/jxl_extras_codec_export.h>
+ #include <jxl/parallel_runner.h>
+ #include <jxl/thread_parallel_runner.h>
+ #include <jxl/types.h>
+@@ -81,6 +82,7 @@ struct JXLCompressParams {
+   }
+ };
+ 
++JXL_EXTRAS_CODEC_EXPORT
+ bool EncodeImageJXL(const JXLCompressParams& params, const PackedPixelFile& ppf,
+                     const std::vector<uint8_t>* jpeg_bytes,
+                     std::vector<uint8_t>* compressed);
+Index: libjxl/lib/jxl/jxl.version
+===================================================================
+--- libjxl.orig/lib/jxl/jxl.version
++++ libjxl/lib/jxl/jxl.version
+@@ -1,6 +1,10 @@
+ JXL_0 {
+   global:
+     Jxl*;
++    *EncodeImageJXL*;
++    *DecodeImageJXL*;
++    *CodecFromPath*;
++    *FromExtension*;
+ 
+   local:
+     # Hide all the std namespace symbols. std namespace is explicitly marked
