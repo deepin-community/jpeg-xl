@@ -2,25 +2,28 @@
 
 include /usr/share/dpkg/default.mk
 
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+
 # keep same order as https://buildd.debian.org/status/package.php?p=google-perftools&suite=sid
-TCMALLOC_ARCHS=amd64 arm64 armel armhf i386 mips64el mipsel ppc64el s390x kfreebsd-amd64 kfreebsd-i386 powerpc ppc64 riscv64
+# purposely remove i386 for Ubuntu compat
+TCMALLOC_ARCHS=amd64 arm64 armel armhf mips64el ppc64el riscv64 s390x loong64 powerpc ppc64 x32
 ifeq ($(DEB_HOST_ARCH),$(filter $(DEB_HOST_ARCH),$(TCMALLOC_ARCHS)))
   ENABLE_TCMALLOC=ON
 else
   ENABLE_TCMALLOC=OFF
 endif
 
-JAVA_ARCHS=amd64 arm64 armel armhf i386 mips64el mipsel ppc64el s390x alpha ia64 m68k powerpc ppc64 riscv64 sh4 sparc64 x32
+# https://buildd.debian.org/status/package.php?p=openjdk-21
+JAVA_ARCHS=amd64 arm64 armel armhf i386 mips64el ppc64el riscv64 s390x alpha ia64 m68k powerpc ppc64 sh4 sparc64 x32
 ifeq ($(DEB_HOST_ARCH),$(filter $(DEB_HOST_ARCH),$(JAVA_ARCHS)))
   ENABLE_JNI=ON
 else
   ENABLE_JNI=OFF
 endif
 
-ifneq (,$(filter $(DEB_HOST_ARCH), armhf))
-  # gcc-12 12.2.0-3 produces wrong code with -O2:
-  # https://buildd.debian.org/status/fetch.php?pkg=jpeg-xl&arch=armhf&ver=0.7.0-2&stamp=1664702466&raw=0
-  DEB_CXXFLAGS_MAINT_APPEND += -fno-tree-vectorize
+# Override if profile states so:
+ifneq (,$(filter nojava,$(DEB_BUILD_PROFILES)))
+  ENABLE_JNI=OFF
 endif
 
 # Temp fix for 0.7.0-10.x i386/s390x build; see https://bugs.debian.org/1053641
@@ -31,6 +34,12 @@ ifneq (,$(filter $(DEB_HOST_ARCH), arm64 armel armhf ppc64el))
   DEB_CXXFLAGS_MAINT_APPEND += -Wno-psabi
 endif
 export DEB_CXXFLAGS_MAINT_APPEND
+
+ifeq ($(shell dpkg-vendor --derives-from Ubuntu && echo yes),yes)
+  ENABLE_OPENEXR=OFF
+else
+  ENABLE_OPENEXR=ON
+endif
 
 # Copy/paste from ci.sh `cmd_opt`:
 DEB_CXXFLAGS_MAINT_APPEND += -DJXL_DEBUG_WARNING -DJXL_DEBUG_ON_ERROR
@@ -51,18 +60,20 @@ endif
 %:
 	dh $@ --buildsystem=cmake+ninja
 
-# JPEGXL_ENABLE_PLUGINS is currently OFF see #1001786 for rational
 CMAKE_EXTRA_FLAGS += \
 	-DBUILD_TESTING:BOOL=$(BUILD_TESTING) \
-	-DCMAKE_SKIP_RPATH:BOOL=ON \
+	-DCMAKE_BUILD_RPATH_USE_ORIGIN=OFF \
 	-DJPEGXL_BUNDLE_SKCMS:BOOL=OFF \
 	-DJPEGXL_ENABLE_BENCHMARK:BOOL=ON \
 	-DJPEGXL_ENABLE_DEVTOOLS:BOOL=ON \
 	-DJPEGXL_ENABLE_DOXYGEN:BOOL=$(ENABLE_DOXYGEN) \
 	-DJPEGXL_ENABLE_EXAMPLES:BOOL=ON \
 	-DJPEGXL_ENABLE_JNI:BOOL=$(ENABLE_JNI) \
-	-DJPEGXL_ENABLE_OPENEXR:BOOL=ON \
-	-DJPEGXL_ENABLE_PLUGINS:BOOL=OFF \
+	-DJPEGXL_ENABLE_OPENEXR:BOOL=$(ENABLE_OPENEXR) \
+	-DJPEGXL_ENABLE_PLUGINS:BOOL=ON \
+	-DJPEGXL_ENABLE_PLUGIN_GDKPIXBUF:BOOL=ON \
+	-DJPEGXL_ENABLE_PLUGIN_GIMP210:BOOL=OFF \
+	-DJPEGXL_ENABLE_PLUGIN_MIME:BOOL=OFF \
 	-DJPEGXL_ENABLE_SJPEG:BOOL=OFF \
 	-DJPEGXL_ENABLE_SKCMS:BOOL=OFF \
 	-DJPEGXL_ENABLE_TCMALLOC:BOOL=$(ENABLE_TCMALLOC) \
@@ -87,9 +98,6 @@ override_dh_install-indep:
 
 override_dh_auto_test-indep:
 
-override_dh_auto_test-arch:
-	timeout 4h dh_auto_test --
-
 override_dh_installman-arch: tools_manpages devtools_manpages
 	dh_installman
 
@@ -99,7 +107,7 @@ override_dh_clean-arch:
 	dh_clean tools/conformance/__pycache__/lcms2.cpython-*.pyc
 
 debian/control: debian/control.in
-	sed -e "s/@TCMALLOC_ARCHS@/$(TCMALLOC_ARCHS)/g;s/@JAVA_ARCHS@/$(JAVA_ARCHS)/g;" $< > $@
+	sed -e "s/@GCC_13_ARCHS@/$(GCC_13_ARCHS)/g;s/@TCMALLOC_ARCHS@/$(TCMALLOC_ARCHS)/g;s/@JAVA_ARCHS@/$(JAVA_ARCHS)/g;" $< > $@
 
 FILE=debian/libjxl-devtools.install
 DEVTOOLS=`cat $(FILE) | sed  's@usr/bin@debian@' | sed 's/$$/.1/' | tr '\n' ' '`
@@ -111,10 +119,10 @@ debian/%.1: debian/%.1.in
 
 .PHONY: tools_manpages devtools_manpages get-orig-source
 
-tools_manpages: debian/cjpeg_hdr.1 debian/jxlinfo.1
+tools_manpages: debian/jxlinfo.1
 	echo "all tools manpages generated"
 
-devtools_manpages: debian/butteraugli_main.1 debian/decode_and_encode.1 debian/display_to_hlg.1 debian/fuzzer_corpus.1 debian/generate_lut_template.1 debian/jxl_from_tree.1 debian/pq_to_hlg.1 debian/render_hlg.1 debian/ssimulacra_main.1 debian/texture_to_cube.1 debian/tone_map.1 debian/xyb_range.1 debian/benchmark_xl.1
+devtools_manpages: debian/butteraugli_main.1 debian/decode_and_encode.1 debian/display_to_hlg.1 debian/djxl_fuzzer_corpus.1 debian/generate_lut_template.1 debian/jxl_from_tree.1 debian/pq_to_hlg.1 debian/render_hlg.1 debian/ssimulacra_main.1 debian/texture_to_cube.1 debian/tone_map.1 debian/xyb_range.1 debian/benchmark_xl.1 debian/ssimulacra2.1 debian/local_tone_map.1 debian/exr_to_pq.1 debian/icc_simplify.1
 	echo $(DEVTOOLS)
 	echo "all devtools manpages generated"
 

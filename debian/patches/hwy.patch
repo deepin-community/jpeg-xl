@@ -1,0 +1,39 @@
+Description: Transition to hwy config.cmake
+Author: Mathieu Malaterre <malat@debian.org>
+Forwarded: no
+Last-Update: 2023-02-01
+
+Index: libjxl/CMakeLists.txt
+===================================================================
+--- libjxl.orig/CMakeLists.txt
++++ libjxl/CMakeLists.txt
+@@ -8,6 +8,8 @@ cmake_minimum_required(VERSION 3.16...3.
+ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+ 
+ project(LIBJXL LANGUAGES C CXX)
++# Make sure HWY variable are at top-level:
++find_package(HWY 1.0.0 REQUIRED)
+ 
+ # TODO(sboukortt): remove once oss-fuzz passes -DBUILD_SHARED_LIBS=OFF
+ if(JPEGXL_ENABLE_FUZZERS)
+Index: libjxl/lib/jpegli.cmake
+===================================================================
+--- libjxl.orig/lib/jpegli.cmake
++++ libjxl/lib/jpegli.cmake
+@@ -3,6 +3,7 @@
+ # Use of this source code is governed by a BSD-style
+ # license that can be found in the LICENSE file.
+ 
++find_package(HWY CONFIG REQUIRED)
+ include(jxl_lists.cmake)
+ 
+ set(JPEGLI_INTERNAL_LIBS
+@@ -86,7 +87,7 @@ foreach (TESTFILE IN LISTS JPEGXL_INTERN
+     "${CMAKE_CURRENT_BINARY_DIR}/include"
+   )
+   target_link_libraries(${TESTNAME}
+-    hwy
++    hwy::hwy
+     jpegli-static
+     GTest::GTest
+     GTest::Main

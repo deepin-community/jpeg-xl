@@ -9,10 +9,10 @@ Bug-Debian: https://bugs.debian.org/1051560
  tools/conformance/tooling_test.sh | 1 +
  2 files changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/tools/conformance/generator.py b/tools/conformance/generator.py
-index e2a9b2e..d59c3f4 100755
---- a/tools/conformance/generator.py
-+++ b/tools/conformance/generator.py
+Index: libjxl/tools/conformance/generator.py
+===================================================================
+--- libjxl.orig/tools/conformance/generator.py
++++ libjxl/tools/conformance/generator.py
 @@ -67,7 +67,7 @@ def GenerateConformanceCorpus(args):
          cmd.extend(['--icc_out', pixel_prefix + '.icc'])
  
@@ -22,11 +22,11 @@ index e2a9b2e..d59c3f4 100755
  
          with open(metadata_filename, 'r') as f:
              metadata = json.load(f)
-diff --git a/tools/conformance/tooling_test.sh b/tools/conformance/tooling_test.sh
-index 95adefb..892b7a2 100755
---- a/tools/conformance/tooling_test.sh
-+++ b/tools/conformance/tooling_test.sh
-@@ -41,6 +41,7 @@ main() {
+Index: libjxl/tools/conformance/tooling_test.sh
+===================================================================
+--- libjxl.orig/tools/conformance/tooling_test.sh
++++ libjxl/tools/conformance/tooling_test.sh
+@@ -42,6 +42,7 @@ main() {
      build_dir=$(realpath "${MYDIR}/../../build")
    fi
  

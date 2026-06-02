@@ -2,12 +2,16 @@ usr/bin/benchmark_xl
 usr/bin/butteraugli_main
 usr/bin/decode_and_encode
 usr/bin/display_to_hlg
-usr/bin/fuzzer_corpus
+usr/bin/djxl_fuzzer_corpus
+usr/bin/exr_to_pq
 usr/bin/generate_lut_template
 usr/bin/jxl_from_tree
+usr/bin/local_tone_map
 usr/bin/pq_to_hlg
 usr/bin/render_hlg
+usr/bin/ssimulacra2
 usr/bin/ssimulacra_main
 usr/bin/texture_to_cube
 usr/bin/tone_map
 usr/bin/xyb_range
+usr/bin/icc_simplify
