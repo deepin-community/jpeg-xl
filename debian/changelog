@@ -1,43 +1,14 @@
-jpeg-xl (0.7.0-10.2deepin1) unstable; urgency=medium
+jpeg-xl (0.7.0-10+deb12u1) bookworm-security; urgency=high
 
-  * Fix CVE-2025-12474: uninitialized memory read in low memory render
-    pipeline
+  * Non-maintainer upload by the Security Team.
+  * CVE-2023-0645: out of bounds read in the exif handler (Closes: #1034722)
+  * CVE-2023-35790: integer underflow in patch decoding can lead to a denial
+    of service issue. (Closes: #1055306)
+  * CVE-2024-11403: out-of-bounds write in the JPEG decoder when doing
+    recompression. (Closes: #1088818)
+  * CVE-2024-11498: stack buffer overflow in modular trees (Closes: #1088818)
 
- -- deepin-ci-robot <packages@deepin.org>  Wed, 20 May 2026 17:45:40 +0800
-
-jpeg-xl (0.7.0-10.2deepin0) unstable; urgency=medium
-
-  * No source change upload against GCC 12.
-
- -- Tianyu Chen <sweetyfish@deepin.org>  Thu, 19 Sep 2024 22:50:16 +0800
-
-jpeg-xl (0.7.0-10.2) unstable; urgency=medium
-
-  * Non-maintainer upload.
-  
-  [ Boyuan Yang ]
-  * debian/rules: Temporarily enable CXXFLAGS -fexcess-precision=fast
-    to avoid test failure for i386, s390x. Patch suggested by Adrian Bunk.
-    (See #1053641)
-  * debian/patches/:
-    + 0009-fast_dct-inl.h-Include-std-headers-to-solve-missing-.patch:
-      Add missing headers to avoid FTBFS on arm64 for std::round().
-
- -- Boyuan Yang <byang@debian.org>  Sat, 07 Oct 2023 20:36:24 -0400
-
-jpeg-xl (0.7.0-10.1) unstable; urgency=medium
-
-  * Non-maintainer upload.
-
-  [ Boyuan Yang ]
-  * debian/patches/:
-    + 0007-tools-CMakeLists.txt-Fix-compatibility-with-static-l.patch:
-      Fix compatibility with libwebp 1.3.x. (Closes: #1052486)
-    * 0008-Fix-conformance-test.patch: Fix unit test that was previously
-      skipped but now failing. (Closes: #1051560)
-  * debian/control: Require libwebp-dev (>= 1.3) due to patch 0007.
-
- -- Boyuan Yang <byang@debian.org>  Sat, 23 Sep 2023 12:52:43 -0400
+ -- Aron Xu <aron@debian.org>  Thu, 03 Jul 2025 16:06:10 +0800
 
 jpeg-xl (0.7.0-10) unstable; urgency=medium
 
