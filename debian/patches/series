@@ -8,3 +8,4 @@ manpages.patch
 0008-Fix-conformance-test.patch
 0009-fast_dct-inl.h-Include-std-headers-to-solve-missing-.patch
 CVE-2025-12474.patch
+CVE-2025-70103.patch
