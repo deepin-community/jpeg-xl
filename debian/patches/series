@@ -9,3 +9,4 @@ manpages.patch
 0009-fast_dct-inl.h-Include-std-headers-to-solve-missing-.patch
 CVE-2025-12474.patch
 CVE-2025-70103.patch
+CVE-2026-52584.patch
