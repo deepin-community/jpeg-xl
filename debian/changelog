@@ -1,3 +1,13 @@
+jpeg-xl (0.7.0-10.2deepin5) unstable; urgency=medium
+
+  * fix(cve): CVE-2026-82522 (medium) - Several hardening / correctness
+    / security fixes (#4885) - Deal with box_size type size mismatch on
+    32-bit platforms   Upstream:
+    https://github.com/libjxl/libjxl/commit/22ad80af1454f0444ea34115e49e
+    d40517147d68
+
+ -- deepin-ci-robot <packages@deepin.org>  Mon, 16 Nov 2026 17:46:41 +0800
+
 jpeg-xl (0.7.0-10.2deepin4) unstable; urgency=medium
 
   * Rebuild with LTO enabled (dpkg vendor feature optimize/lto).
