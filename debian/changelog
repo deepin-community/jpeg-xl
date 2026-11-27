@@ -1,76 +1,14 @@
-jpeg-xl (0.7.0-10.2deepin5) unstable; urgency=medium
+jpeg-xl (0.7.0-10+deb12u1) bookworm-security; urgency=high
 
-  * fix(cve): CVE-2026-82522 (medium) - Several hardening / correctness
-    / security fixes (#4885) - Deal with box_size type size mismatch on
-    32-bit platforms   Upstream:
-    https://github.com/libjxl/libjxl/commit/22ad80af1454f0444ea34115e49e
-    d40517147d68
+  * Non-maintainer upload by the Security Team.
+  * CVE-2023-0645: out of bounds read in the exif handler (Closes: #1034722)
+  * CVE-2023-35790: integer underflow in patch decoding can lead to a denial
+    of service issue. (Closes: #1055306)
+  * CVE-2024-11403: out-of-bounds write in the JPEG decoder when doing
+    recompression. (Closes: #1088818)
+  * CVE-2024-11498: stack buffer overflow in modular trees (Closes: #1088818)
 
- -- deepin-ci-robot <packages@deepin.org>  Mon, 16 Nov 2026 17:46:41 +0800
-
-jpeg-xl (0.7.0-10.2deepin4) unstable; urgency=medium
-
-  * Rebuild with LTO enabled (dpkg vendor feature optimize/lto).
-
- -- tunaichao <tunaichao@uniontech.com>  Fri, 11 Sep 2026 15:20:22 +0800
-
-jpeg-xl (0.7.0-10.2deepin3) unstable; urgency=medium
-
-  * Fix CVE-2026-52584: heap buffer overflow in DecodeImageAPNG
-    Guard the decoded PNG frame's row array before copying pixel rows.
-    A crafted APNG with a frame viewport larger than the rows actually
-    produced could cause an out-of-bounds read.
-
- -- deepin-ci-robot <packages@deepin.org>  Wed, 26 Aug 2026 16:20:00 +0800
-
-jpeg-xl (0.7.0-10.2deepin2) unstable; urgency=medium
-
-  * Fix CVE-2025-70103: heap buffer overflow in PNM decoder
-    Add explicit input size validation for PNM pixel data.
-    Crafted PNM images with a valid header but insufficient raster
-    data could cause a heap buffer overflow.
-
- -- deepin-ci-robot <packages@deepin.org>  Thu, 18 Jun 2026 03:08:00 +0800
-jpeg-xl (0.7.0-10.2deepin1) unstable; urgency=medium
-
-  * Fix CVE-2025-12474: uninitialized memory read in low memory render
-    pipeline
-
- -- deepin-ci-robot <packages@deepin.org>  Wed, 20 May 2026 17:45:40 +0800
-
-jpeg-xl (0.7.0-10.2deepin0) unstable; urgency=medium
-
-  * No source change upload against GCC 12.
-
- -- Tianyu Chen <sweetyfish@deepin.org>  Thu, 19 Sep 2024 22:50:16 +0800
-
-jpeg-xl (0.7.0-10.2) unstable; urgency=medium
-
-  * Non-maintainer upload.
-  
-  [ Boyuan Yang ]
-  * debian/rules: Temporarily enable CXXFLAGS -fexcess-precision=fast
-    to avoid test failure for i386, s390x. Patch suggested by Adrian Bunk.
-    (See #1053641)
-  * debian/patches/:
-    + 0009-fast_dct-inl.h-Include-std-headers-to-solve-missing-.patch:
-      Add missing headers to avoid FTBFS on arm64 for std::round().
-
- -- Boyuan Yang <byang@debian.org>  Sat, 07 Oct 2023 20:36:24 -0400
-
-jpeg-xl (0.7.0-10.1) unstable; urgency=medium
-
-  * Non-maintainer upload.
-
-  [ Boyuan Yang ]
-  * debian/patches/:
-    + 0007-tools-CMakeLists.txt-Fix-compatibility-with-static-l.patch:
-      Fix compatibility with libwebp 1.3.x. (Closes: #1052486)
-    * 0008-Fix-conformance-test.patch: Fix unit test that was previously
-      skipped but now failing. (Closes: #1051560)
-  * debian/control: Require libwebp-dev (>= 1.3) due to patch 0007.
-
- -- Boyuan Yang <byang@debian.org>  Sat, 23 Sep 2023 12:52:43 -0400
+ -- Aron Xu <aron@debian.org>  Thu, 03 Jul 2025 16:06:10 +0800
 
 jpeg-xl (0.7.0-10) unstable; urgency=medium
 
